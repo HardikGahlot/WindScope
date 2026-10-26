@@ -414,17 +414,23 @@ Auditing the sample analysis for Decision Date `2026-01-10` and Delivery Date `2
 
 ## 21. Deployment Instructions
 
-### Deploy Backend to Render (Docker)
-1. Fork or push this repository to GitHub.
-2. In the Render Dashboard, click **New +** $\to$ **Blueprint** and connect the repository (using `render.yaml`).
-3. Alternatively, select **New Web Service**, choose **Docker**, set root directory to `.`, and dockerfile path to `backend/Dockerfile`.
-4. Ensure environment variable `CORS_ORIGINS` includes your Vercel frontend URL.
+### Option A: Full-Stack Deployment on Vercel (Frontend + Backend on One Domain)
+WindScope is configured to deploy both the React frontend and the Python FastAPI backend directly on Vercel as a single monorepo project:
+1. Push this repository to GitHub: `https://github.com/HardikGahlot/WindScope.git`
+2. Go to [Vercel Dashboard](https://vercel.com/new) and **Import** the repository.
+3. Keep the **Root Directory** as `.` (repo root). Vercel reads `vercel.json` automatically:
+   - **Frontend**: Built via `npm run build` (`cd frontend && npm install && npm run build`) into `frontend/dist`.
+   - **Backend**: Served via Vercel Serverless Function at `api/index.py` using Python 3.11 with bundled SQLite cache.
+   - **Routing**: `/api/*` and `/docs` route to the FastAPI backend; all other routes serve the React SPA.
+4. Click **Deploy**. Both the web application and the analytics API will be live on the same Vercel URL with zero CORS configuration required!
 
-### Deploy Frontend to Vercel
-1. In the Vercel Dashboard, import the repository.
-2. Set **Root Directory** to `frontend`.
-3. Set Environment Variable: `VITE_API_URL = https://your-backend.onrender.com`.
-4. Deploy.
+### Option B: Deploy Backend to Render (Docker) + Frontend to Vercel
+1. In the [Render Dashboard](https://dashboard.render.com), create a **New Web Service**, select Docker environment, set dockerfile path to `./backend/Dockerfile`, context to `.`.
+2. Set environment variable `CORS_ORIGINS` to your Vercel URL.
+3. In Vercel, set `VITE_API_URL` to your Render backend URL (e.g. `https://windscope-backend.onrender.com`).
+
+### Option C: Heroku Deployment
+A `Procfile` (`web: uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port $PORT`) and `runtime.txt` (`python-3.11.8`) are included for direct Heroku container/buildpack deployment.
 
 ---
 

@@ -32,6 +32,8 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix=settings.API_V1_STR)
+# Also include without prefix to seamlessly support serverless environments where /api may be stripped
+app.include_router(router, prefix="")
 
 
 @app.exception_handler(Exception)

@@ -7,11 +7,44 @@ from app.models.schemas import RawFuelHHRecord, RawWindforRecord
 from app.utils.datetime_utils import format_iso_utc, parse_iso_utc
 
 
+import json
+import os
+import shutil
+import sqlite3
+import tempfile
+from datetime import date, datetime
+from pathlib import Path
+from typing import Any, List, Optional
+from app.models.schemas import RawFuelHHRecord, RawWindforRecord
+from app.utils.datetime_utils import format_iso_utc, parse_iso_utc
+
+
 class CacheService:
     def __init__(self, cache_dir: str):
-        self.cache_dir = Path(cache_dir)
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
-        self.db_path = self.cache_dir / "bmrs_cache.db"
+        original_cache_dir = Path(cache_dir)
+        original_db = original_cache_dir / "bmrs_cache.db"
+        
+        # Detect serverless / read-only environment (e.g. Vercel, AWS Lambda)
+        is_serverless = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+        is_writable = os.access(original_cache_dir, os.W_OK) if original_cache_dir.exists() else True
+
+        if is_serverless or not is_writable:
+            # In serverless environments, bundle files are read-only.
+            # Copy preloaded database to writable /tmp directory to allow SQLite locks.
+            tmp_dir = Path(tempfile.gettempdir()) / "windscope_cache"
+            tmp_dir.mkdir(parents=True, exist_ok=True)
+            self.cache_dir = tmp_dir
+            self.db_path = tmp_dir / "bmrs_cache.db"
+            if original_db.exists():
+                if not self.db_path.exists() or self.db_path.stat().st_size < original_db.stat().st_size:
+                    shutil.copyfile(original_db, self.db_path)
+            self._source_cache_dir = original_cache_dir
+        else:
+            self.cache_dir = original_cache_dir
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
+            self.db_path = self.cache_dir / "bmrs_cache.db"
+            self._source_cache_dir = original_cache_dir
+
         self._memory_cache: dict = {}
         self._init_db()
         self._import_existing_json_files()
@@ -54,8 +87,9 @@ class CacheService:
             fuel_count = conn.execute("SELECT COUNT(*) FROM fuelhh").fetchone()[0]
             wind_count = conn.execute("SELECT COUNT(*) FROM windfor").fetchone()[0]
             
+            source_dir = getattr(self, "_source_cache_dir", self.cache_dir)
             if fuel_count == 0:
-                for fpath in self.cache_dir.glob("fuelhh_*.json"):
+                for fpath in list(self.cache_dir.glob("fuelhh_*.json")) + list(source_dir.glob("fuelhh_*.json")):
                     try:
                         with open(fpath, "r", encoding="utf-8") as f:
                             items = json.load(f)
@@ -69,7 +103,7 @@ class CacheService:
                         pass
 
             if wind_count == 0:
-                for fpath in self.cache_dir.glob("windfor_*.json"):
+                for fpath in list(self.cache_dir.glob("windfor_*.json")) + list(source_dir.glob("windfor_*.json")):
                     try:
                         with open(fpath, "r", encoding="utf-8") as f:
                             items = json.load(f)
