@@ -18,7 +18,12 @@ class Settings(BaseSettings):
     DEFAULT_TIMEZONE: str = "Europe/London"
     
     # Caching
-    CACHE_DIR: str = str(Path(__file__).resolve().parent.parent.parent / "data" / "cache")
+    # Caching: prefer backend/data/cache if service root is backend, fallback to root data/cache
+    CACHE_DIR: str = str(
+        (Path(__file__).resolve().parent.parent / "data" / "cache")
+        if (Path(__file__).resolve().parent.parent / "data" / "cache").exists()
+        else (Path(__file__).resolve().parent.parent.parent / "data" / "cache")
+    )
     CACHE_ENABLED: bool = True
     
     # CORS
