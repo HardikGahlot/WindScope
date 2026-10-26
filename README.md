@@ -397,18 +397,18 @@ Auditing the sample analysis for Decision Date `2026-01-10` and Delivery Date `2
 
 ---
 
-## 19. Public Frontend URL
+## 19. Public Frontend & Application URL
 
-- **Production Frontend**: `https://windscope-app.vercel.app` *(or configured Vercel deployment URL)*
+- **Production Live Deployment (Vercel)**: [https://windscope-beta.vercel.app](https://windscope-beta.vercel.app)
 - **Local URL**: `http://localhost:5173` (or `http://localhost:3000` via Docker)
 
 ---
 
 ## 20. Public Backend & API Documentation URL
 
-- **Production Backend**: `https://windscope-backend.onrender.com` *(or configured Render deployment URL)*
-- **Interactive OpenAPI Documentation**: `https://windscope-backend.onrender.com/docs`
-- **Health Check**: `https://windscope-backend.onrender.com/api/health`
+- **Production API & OpenAPI Documentation**: [https://windscope-beta.vercel.app/docs](https://windscope-beta.vercel.app/docs)
+- **Production Health Check**: [https://windscope-beta.vercel.app/api/health](https://windscope-beta.vercel.app/api/health)
+- **Standby Render Backend**: `https://windscope-backend.onrender.com`
 
 ---
 
