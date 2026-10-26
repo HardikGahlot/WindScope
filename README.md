@@ -151,6 +151,11 @@ flowchart TD
 - **Base API Host**: `https://data.elexon.co.uk/bmrs/api/v1`
 - **Swagger JSON Specification**: `https://data.elexon.co.uk/swagger/v1/swagger.json`
 
+### Verified Historical Ingestion Scope
+- **FUELHH Actuals**: Exactly **1,584 records** spanning 33 calendar days (`2026-01-01` to `2026-02-02`, $33 \times 48 = 1,584$). This completely covers all 31 delivery days for January 2026 decisions (`2026-01-02` through `2026-02-01`), plus the `2026-02-02` buffer. Zero null or missing actual records exist in this window.
+- **WINDFOR Forecasts**: Exactly **18,688 records** published between `2025-12-31T02:30:00Z` and `2026-01-31T22:30:00Z` across 256 publication runs, covering delivery start times through `2026-02-02T21:00:00Z`.
+- **Units**: All values represent national Great Britain average wind generation in **Megawatts (MW)**.
+
 ---
 
 ## 7. Data Retrieval & Forecast Selection Methodology
@@ -383,6 +388,12 @@ cd frontend && npm test
 cd frontend && npm run build
 ```
 **Observed Result**: `tsc && vite build` succeeded in 1.87s with zero errors.
+
+### Independent Verification of 10 January 2026 Sample Analysis
+Auditing the sample analysis for Decision Date `2026-01-10` and Delivery Date `2026-01-11` (Cutoff: `09:30 Europe/London`):
+- **Why MAE and Bias are both +4,948.46 MW**: An audit of all 24 individual matched settlement periods reveals that National Grid ESO's 09:30 morning forecast overestimated actual wind output for every single period ($F_i > A_i$ for all $i \in [1, 24]$). Because every error $e_i \ge 0$, $|e_i| \equiv e_i$, and therefore $\text{MAE} \equiv \text{Bias} = \frac{118,763.00\text{ MW}}{24} = 4,948.4583\text{ MW}$.
+- **Underforecasting on Other Days**: Across January 2026, 4 days exhibited net negative bias (underforecast): `2026-01-04` (-28.92 MW), `2026-01-09` (-105.29 MW), `2026-01-13` (-125.25 MW), and `2026-01-18` (-744.38 MW), where $\text{Bias} < 0$ and $\text{MAE} \ne \text{Bias}$.
+- **Exclusion of Post-Cutoff Forecasts**: On 10 January 2026, four subsequent WINDFOR publications were issued after 09:30 (at 11:30, 15:30, 18:30, and 22:30). The engine correctly identified and excluded all four, selecting `2026-01-10T09:30:00Z` as the latest eligible publication.
 
 ---
 

@@ -8,7 +8,7 @@ This checklist verifies all technical, functional, and operational requirements 
 
 - [x] **Real Elexon Actual and Forecast Data Verified**:
   - `FUELHH/stream` and `WINDFOR/stream` endpoints verified against official Elexon BMRS API.
-  - Complete historical records retrieved for January 2026 (1,584 FUELHH records, 18,688 WINDFOR records).
+  - Complete historical records retrieved: 33 calendar days (2026-01-01 to 2026-02-02) × 48 settlement periods = 1,584 FUELHH actual records; 18,688 WINDFOR forecast records. All 31 January decision dates and corresponding February 1 delivery dates are fully covered.
   - No synthetic or fabricated records substituted.
 - [x] **Decision-Time Forecast Selection Validated**:
   - Cutoff enforced in `Europe/London` and converted to UTC boundary.

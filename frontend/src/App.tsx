@@ -151,6 +151,7 @@ export const App: React.FC = () => {
                   records={records}
                   deliveryDate={overview.delivery_date}
                   cutoffTime={cutoffTime}
+                  matchingMode={matchingMode}
                 />
                 <RecordsTable
                   records={records}

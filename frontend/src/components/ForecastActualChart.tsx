@@ -15,12 +15,14 @@ interface ForecastActualChartProps {
   records: MatchedDeliveryRecord[];
   deliveryDate: string;
   cutoffTime: string;
+  matchingMode?: 'exact' | 'mapped_hourly';
 }
 
 export const ForecastActualChart: React.FC<ForecastActualChartProps> = ({
   records,
   deliveryDate,
   cutoffTime,
+  matchingMode = 'exact',
 }) => {
   // Format data for Recharts
   const chartData = records.map((r) => {
@@ -102,7 +104,10 @@ export const ForecastActualChart: React.FC<ForecastActualChartProps> = ({
           </h2>
           <p className="text-xs text-slate-400">
             Delivery Date: <span className="text-slate-200 font-mono">{deliveryDate}</span> (Cutoff:{' '}
-            <span className="text-amber-300 font-mono">{cutoffTime} London</span>). Gaps indicate non-interpolated missing data.
+            <span className="text-amber-300 font-mono">{cutoffTime} London</span>). Mode:{' '}
+            <span className="text-brand-cyan font-mono font-medium">
+              {matchingMode === 'exact' ? 'Exact Resolution (:30 gaps preserved)' : 'Mapped Block Hour (hourly spread)'}
+            </span>.
           </p>
         </div>
         <div className="flex items-center space-x-4 text-xs">

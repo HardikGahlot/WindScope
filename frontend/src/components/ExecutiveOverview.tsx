@@ -43,6 +43,13 @@ export const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({ overview }
           </div>
         </div>
         <div className="flex items-center space-x-2">
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium border ${
+            overview.matching_mode === 'exact'
+              ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+              : 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30'
+          }`}>
+            {overview.matching_mode === 'exact' ? 'Exact Resolution (24 Matched / 24 Gap)' : 'Mapped Block Hour (48 Matched)'}
+          </span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <CheckCircle2 className="w-3 h-3" />
             {overview.data_source}
